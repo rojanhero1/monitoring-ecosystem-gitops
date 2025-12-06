@@ -301,9 +301,9 @@ grafana:
       alb.ingress.kubernetes.io/group.name: monitoring-stack-staging
       alb.ingress.kubernetes.io/scheme: internet-facing
       alb.ingress.kubernetes.io/target-type: ip
-      alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
-      #alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS": 443}]'
-      #alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:eu-west-1:687398153695:certificate/860c57b3-c09f-473c-ac29-2af69faa7cde
+      #alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+      alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-west-2:687398153695:certificate/14377159-6bfd-47ec-9b17-8421631d7c3d
       alb.ingress.kubernetes.io/ssl-redirect: '443'
       alb.ingress.kubernetes.io/healthcheck-path: /api/health
       alb.ingress.kubernetes.io/healthcheck-port: '3000'

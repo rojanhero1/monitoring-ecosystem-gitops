@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: k8s-root-argocd
+  name: 1-k8s-root-argocd
   namespace: argocd
   # finalizers:
   #   - resources-finalizer.argocd.argoproj.io  # if mistakely config map deleted then argocd stops working
@@ -11,7 +11,7 @@ spec:
     server: https://kubernetes.default.svc
   project: default
   source:
-    path: argocd/argocd-config
+    path: argocd/dependencies-and-config
     repoURL: https://github.com/rojanhero1/monitoring-ecosystem-gitops.git
     targetRevision: HEAD
   syncPolicy:

@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: k8s-root-app-monitoring
+  name: 1-k8s-root-app-monitoring
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
