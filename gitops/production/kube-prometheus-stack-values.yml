@@ -1,0 +1,403 @@
+# Minimal production values.yaml
+# kube-prometheus-stack
+# -----------------------------
+
+# Ensure CRDs get applied before the custom resources
+crds:
+  enabled: true   # chart handles CRDs first
+
+# Core operators
+prometheusOperator:
+  enabled: true
+  admissionWebhooks:
+    enabled: true
+  tls:
+    enabled: true
+
+# --- Alertmanager (keep on; even minimal prod should route alerts) ---
+alertmanager:
+  enabled: true
+  serviceAccount:
+    create: true
+    name: kube-prometheus-stack-alertmanager
+    annotations:
+      eks.amazonaws.com/role-arn: arn:aws:iam::687398153695:role/Cloudhero-staging-eks-AlertmanagerIRSA
+  service:
+    type: ClusterIP  
+  alertmanagerSpec:
+    replicas: 3
+    retention: 120h
+    storage:
+      volumeClaimTemplate:
+        spec:
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 10Gi
+  config:
+    global:
+      resolve_timeout: 5m
+
+    route:
+      receiver: sns-default
+      group_by: ['alertname', 'cluster', 'service']
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 3h
+      routes:
+        - matchers:
+            - alertname = "Watchdog"
+          receiver: "null"      
+    receivers:
+      - name: "null"
+
+      - name: sns-default
+        sns_configs:
+          - #api_url: https://sns.eu-west-1.amazonaws.com
+            send_resolved: true
+            #sigv4:
+            #  region: eu-west-1
+            topic_arn: arn:aws:sns:us-west-2:687398153695:Cloudhero-staging-eks-alerts
+            subject: "[{{ .Status | toUpper }}] {{ .CommonLabels.alertname }}"
+            message: |
+              {{ range .Alerts }}
+              Alert: {{ .Labels.alertname }}
+              Severity: {{ .Labels.severity }}
+              Status: {{ .Status }}
+              
+              Summary: {{ .Annotations.summary }}
+              Description: {{ .Annotations.description }}
+              
+              Labels:
+              {{ range .Labels.SortedPairs }}  - {{ .Name }}: {{ .Value }}
+              {{ end }}
+              
+              {{ if gt (len .GeneratorURL) 0 }}Source: {{ .GeneratorURL }}{{ end }}
+              {{ end }}
+            attributes:
+              key: source
+              value: "kube-prometheus-stack"
+
+
+additionalPrometheusRulesMap:
+  custom-alerts:
+    groups:
+      # -------------------------------------------------------------------
+      #  CLUSTER CPU USAGE ALERT (your existing rule)
+      # -------------------------------------------------------------------
+      - name: cluster-cpu-usage
+        rules:
+          - alert: HighClusterCPUUsage
+            expr: |
+              100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+            for: 20m
+            labels:
+              severity: warning
+            annotations:
+              summary: "High cluster CPU usage (> 80%)"
+              description: |
+                Cluster CPU usage has been above 80% for more than 5 minutes.
+
+
+      # -------------------------------------------------------------------
+      # POD CPU USAGE ALERT
+      # -------------------------------------------------------------------
+      - name: pod-cpu-usage
+        rules:
+          - alert: PodHighCPUUsage
+            expr: |
+              rate(container_cpu_usage_seconds_total{container!=""}[5m])
+              /
+              kube_pod_container_resource_limits{resource="cpu"} > 0.85
+            for: 7m
+            labels:
+              severity: warning
+            annotations:
+              summary: "Pod high CPU usage (>85%)"
+              description: |
+                Pod {{ $labels.pod }} in namespace {{ $labels.namespace }}
+                is using more than 85% of its CPU limit.
+
+
+      # -------------------------------------------------------------------
+      # POD MEMORY USAGE ALERT
+      # -------------------------------------------------------------------
+      - name: pod-memory-usage
+        rules:
+          - alert: PodHighMemoryUsage
+            expr: |
+              sum by (namespace, pod) (
+                container_memory_usage_bytes{container!=""}
+              )
+              /
+              sum by (namespace, pod) (
+                kube_pod_container_resource_limits{resource="memory"}
+              )
+              * 100 > 85
+            for: 7m
+            labels:
+              severity: warning
+            annotations:
+              summary: "Pod high memory usage (>85%)"
+              description: |
+                Pod {{ $labels.pod }} in namespace {{ $labels.namespace }}
+                is using more than 85% of its memory limit.
+
+      # -------------------------------------------------------------------
+      # POD CRASHLOOPBACKOFF ALERT
+      # -------------------------------------------------------------------
+      - name: pod-crashloop-alerts
+        rules:
+          - alert: PodCrashLooping
+            expr: |
+              rate(kube_pod_container_status_restarts_total{container!=""}[5m]) > 0
+            for: 2m
+            labels:
+              severity: critical
+            annotations:
+              summary: "Pod CrashLoopBackOff detected"
+              description: |
+                Pod {{ $labels.pod }} in namespace {{ $labels.namespace }}
+                is restarting repeatedly (CrashLoopBackOff).
+
+
+      # -------------------------------------------------------------------
+      # OOMKilled ALERT
+      # -------------------------------------------------------------------
+      - name: oomkilled-alerts
+        rules:
+          - alert: ContainerOOMKilled
+            expr: |
+              increase(kube_pod_container_status_last_terminated_reason{reason="OOMKilled"}[5m]) > 0
+            for: 0m
+            labels:
+              severity: critical
+            annotations:
+              summary: "Container OOMKilled"
+              description: |
+                A container in pod {{ $labels.pod }} (namespace {{ $labels.namespace }})
+                was OOMKilled within the last 5 minutes.
+
+
+      # -------------------------------------------------------------------
+      #  POD RESTART RATE ALERT
+      # -------------------------------------------------------------------
+      - name: pod-restart-rate
+        rules:
+          - alert: PodHighRestartRate
+            expr: |
+              rate(kube_pod_container_status_restarts_total{namespace!~"kube-system"}[10m]) > 3
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: "Pod high restart rate"
+              description: |
+                Pod {{ $labels.pod }} in namespace {{ $labels.namespace }}
+                had more than 3 restarts in the last 10 minutes.
+
+
+# --- Prometheus (the brain) ---
+prometheus:
+  enabled: true
+  service:
+    type: ClusterIP
+    port: 9090
+    targetPort: 9090
+
+  # Enable Ingress for Prometheus - shares same ALB as Grafana
+
+  # ingress:
+  #   enabled: true
+  #   ingressClassName: alb
+  #   annotations:
+  #     # Use the same ALB group as Grafana
+  #     alb.ingress.kubernetes.io/group.name: monitoring-stack-staging
+  #     alb.ingress.kubernetes.io/scheme: internet-facing
+  #     alb.ingress.kubernetes.io/target-type: ip
+  #     #alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
+  #     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+  #     alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:eu-west-1:687398153695:certificate/860c57b3-c09f-473c-ac29-2af69faa7cde
+  #     alb.ingress.kubernetes.io/ssl-redirect: '443'
+  #     # ALB healthcheck for Prometheus
+  #     alb.ingress.kubernetes.io/healthcheck-path: /-/healthy
+  #     alb.ingress.kubernetes.io/healthcheck-port: '9090'
+  #     alb.ingress.kubernetes.io/healthcheck-protocol: HTTP
+  #     alb.ingress.kubernetes.io/healthcheck-interval-seconds: '15'
+  #     alb.ingress.kubernetes.io/healthcheck-timeout-seconds: '5'
+  #     alb.ingress.kubernetes.io/healthy-threshold-count: '2'
+  #     alb.ingress.kubernetes.io/unhealthy-threshold-count: '2'
+  #   hosts:
+  #     - prometheus.staging.cloudhero.co  # Change to your actual domain
+  #   paths:
+  #     - /
+  #   pathType: Prefix
+
+
+         # enable + configure when you have a hostname+TLS
+  prometheusSpec:
+    # alerting:
+    #   alertmanagers:
+    #     - namespace: monitoring
+    #       name: kube-prometheus-stack-alertmanager
+    #       port: web
+    replicas: 1                 # bump to 2 for HA; requires separate PVCs
+    retention: 15d
+    retentionSize: ""         
+    walCompression: true
+    enableAdminAPI: false
+    resources:
+      requests:
+        cpu: 100m
+        memory: 1Gi
+      limits:
+        cpu: 200m
+        memory: 2Gi
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 50Gi
+
+    # Discover ServiceMonitors/PodMonitors cluster-wide without having to match the Helm "release" label.
+    serviceMonitorSelectorNilUsesHelmValues: false
+    podMonitorSelectorNilUsesHelmValues: false
+    ruleSelectorNilUsesHelmValues: true
+    probeSelectorNilUsesHelmValues: false
+    scrapeConfigSelectorNilUsesHelmValues: false
+
+# --- Grafana (UI) ---
+grafana:
+  enabled: true
+  # serviceAccount:
+  #   create: true
+  #   name: grafana
+  #   annotations:
+  #     eks.amazonaws.com/role-arn: arn:aws:iam::687398153695:role/SmartDreamers-smartdreamersstaging-eks-GrafanaIRSA
+  # notifiers:
+  #   notifiers.yaml:
+  #     apiVersion: 1
+  #     notifiers:
+  #       - name: aws-sns-alerts
+  #         type: sns
+  #         uid: sns-default
+  #         org_id: 1
+  #         is_default: true
+  #         settings:
+  #           topic: arn:aws:sns:us-west-2:687398153695:Cloudhero-staging-eks-alerts
+  #           authType: default  # Uses IRSA
+  #           assumeRoleArn: ""
+  service:
+    type: ClusterIP              # set to LoadBalancer if you want direct public access
+    port: 80
+
+  ingress:
+    enabled: true
+    ingressClassName: alb
+    annotations:
+      # Group multiple Ingress resources to use the same ALB
+      alb.ingress.kubernetes.io/group.name: monitoring-stack-staging
+      alb.ingress.kubernetes.io/scheme: internet-facing
+      alb.ingress.kubernetes.io/target-type: ip
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
+      #alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS": 443}]'
+      #alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:eu-west-1:687398153695:certificate/860c57b3-c09f-473c-ac29-2af69faa7cde
+      alb.ingress.kubernetes.io/ssl-redirect: '443'
+      alb.ingress.kubernetes.io/healthcheck-path: /api/health
+      alb.ingress.kubernetes.io/healthcheck-port: '3000'
+      alb.ingress.kubernetes.io/healthcheck-protocol: HTTP
+      alb.ingress.kubernetes.io/healthcheck-interval-seconds: '15'
+      alb.ingress.kubernetes.io/healthcheck-timeout-seconds: '5'
+      alb.ingress.kubernetes.io/healthy-threshold-count: '2'
+      alb.ingress.kubernetes.io/unhealthy-threshold-count: '2'
+      alb.ingress.kubernetes.io/success-codes: '200'
+    hosts:
+      - grafana.cloudhero.co  # Change to your actual domain
+    paths:
+      - /
+    pathType: Prefix
+
+  # Use a proper admin secret in prod (example below); avoid committing passwords into Git
+
+  persistence:
+    enabled: true
+    # storageClassName: gp3        # ← set your class
+    accessModes: ["ReadWriteOnce"]
+    size: 10Gi
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 1024Mi
+    limits:
+      cpu: 300m
+      memory: 2048Mi
+
+  # Keep built-in dashboards; they’re useful and lightweight
+  defaultDashboardsEnabled: true
+  defaultDashboardsTimezone: utc
+
+  # Datasource auto-provisioned to this release’s Prometheus
+  sidecar:
+    datasources:
+      enabled: true
+      label: grafana_datasource
+      labelValue: "1"
+    dashboards:
+      enabled: true
+      label: grafana_dashboard
+      labelValue: "1"
+      searchNamespace: ALL
+
+  grafana.ini:
+    server:
+      root_url: https://grafana.cloudhero.co/   
+      serve_from_sub_path: true   
+    auth.anonymous:
+      enabled: false
+    security:
+      allow_embedding: false
+    unified_alerting:
+      enabled: true
+    alerting:
+      enabled: false       # legacy alerting off
+
+# --- Core exporters (keep on in prod) ---
+kubeStateMetrics:
+  enabled: true
+
+nodeExporter:
+  enabled: true
+
+defaultRules:
+  create: true
+  rules:
+    alertmanager: false
+    etcd: false
+    configReloaders: false
+    general: false
+    k8s: false
+    kubeApiserverAvailability: false
+    kubeApiserverBurnrate: false
+    kubeApiserverHistogram: false
+    kubeApiserverSlos: false
+    kubeControllerManager: false           # set to false
+    kubelet: false
+    kubeProxy: false                                # set to false
+    kubePrometheusGeneral: false
+    kubePrometheusNodeRecording: false
+    kubernetesApps: false
+    kubernetesResources: false
+    kubernetesStorage: false
+    kubernetesSystem: false
+    kubeSchedulerAlerting: false          # set to false
+    kubeSchedulerRecording: false
+    kubeStateMetrics: false
+    network: false
+    node: true
+    nodeExporterAlerting: false
+    nodeExporterRecording: false
+    prometheus: false
+    prometheusOperator: false

@@ -1,0 +1,59 @@
+# Promtail basic configuration for EKS + Loki
+config:
+  clients:
+    - url: http://loki-stack.monitoring.svc.cluster.local:3100/loki/api/v1/push
+
+  positions:
+    filename: /run/promtail/positions.yaml
+
+  server:
+    http_listen_port: 3101
+    grpc_listen_port: 0
+
+  scrape_configs:
+    # --- Kubernetes Pods ---
+    - job_name: kubernetes-pods
+      kubernetes_sd_configs:
+        - role: pod
+
+      pipeline_stages:
+        - docker: {}
+
+      relabel_configs:
+        - source_labels: [__meta_kubernetes_pod_node_name]
+          target_label: __host__
+
+        - action: replace
+          source_labels: [__meta_kubernetes_namespace]
+          target_label: namespace
+
+        - action: replace
+          source_labels: [__meta_kubernetes_pod_name]
+          target_label: pod
+
+        - action: replace
+          source_labels: [__meta_kubernetes_pod_container_name]
+          target_label: container
+
+        # Exclude promtail logs itself
+        - source_labels: [__meta_kubernetes_pod_label_name]
+          regex: promtail
+          action: drop
+
+# Use DaemonSet to run on every node
+daemonset:
+  enabled: true
+
+# ServiceAccount (optional)
+serviceAccount:
+  create: true
+  name: promtail
+
+# Resource requests
+resources:
+  limits:
+    cpu: 200m
+    memory: 200Mi
+  requests:
+    cpu: 50m
+    memory: 50Mi

@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kube-prometheus-stack
+  namespace: argocd
+spec:
+  project: infra # TODO: change to infra
+  sources:
+  - repoURL: https://prometheus-community.github.io/helm-charts
+    chart: kube-prometheus-stack
+    targetRevision: 69.0.0  # ADD THIS - specify the chart version
+    helm:
+      valueFiles:
+        - $values/gitops/staging/kube-prometheus-stack-values.yml
+  - repoURL: https://github.com/rojanhero1/monitoring-ecosystem-gitops.git
+    targetRevision: main # TODO: change it when we finish testing
+    ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ApplyOutOfSyncOnly=true
+      - ServerSideApply=true
