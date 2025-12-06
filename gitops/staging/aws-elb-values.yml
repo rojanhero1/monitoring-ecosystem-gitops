@@ -1,0 +1,22 @@
+clusterName: staging-eks
+
+# Option 1: Using IRSA (Best Practice)
+serviceAccount:
+  create: true
+  name: aws-load-balancer-controller
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::687398153695:role/AmazonEKSLoadBalancerControllerRole
+
+# Optional: Resource limits
+resources:
+  limits:
+    cpu: 200m
+    memory: 500Mi
+  requests:
+    cpu: 100m
+    memory: 200Mi
+
+# Optional: Enable additional features
+enableShield: false
+enableWaf: false
+enableWafv2: false
