@@ -1,16 +1,13 @@
-- hosts:
-    - bastian_debian
-  #become: true
-  remote_user: admin
+- hosts: bastian_ubuntu
+  remote_user: ubuntu
   connection: ssh
   gather_facts: false
   vars_files:
-    - ./variables/color-code.yml
-    - ./.ssh-keys/:/root/.ssh/
-    - ./
+    - variables/color-code.yml
+    - variables/argocd-variable.yml
   vars:
     timestamp: "{{ lookup('pipe', 'date +%Y-%m-%d_%H-%M') }}"
-    base_path: "/home/subash/ansible"
     repo_branch: "develop"
   tasks:
-    - import_tasks: tasks/0-connection-test.yml
+    - import_tasks: tasks/1.1-bastian-setup.yml
+    - import_tasks: tasks/1.2-argocd-setup.yml

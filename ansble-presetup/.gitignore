@@ -4,5 +4,5 @@
 # But keep the directory
 !.ssh-keys/
 
-# Allow .gitkeep only
+# Allow .gitkeep only 
 !.ssh-keys/.gitkeep

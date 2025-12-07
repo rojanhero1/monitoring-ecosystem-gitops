@@ -1,0 +1,2 @@
+manifest_dir: /home/ubuntu/argocd-manifests
+manifest_url: https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml

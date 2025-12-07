@@ -1,0 +1,14 @@
+# Task to run commands in a loop, including apt update
+- name: argocd manifest download => github kubectl
+  ansible.builtin.shell: "{{ item }}"
+  loop:
+    - printf "{{ blue_color }} Namespace creation {{ color_reset }}\n"
+    - kubectl create namespace argocd
+    - printf "{{ blue_color }} Argocd Manifest download and Installation {{ color_reset }}\n"
+    - mkdir -p {{ manifest_dir }}
+    - wget {{ manifest_url }} -O argocd-install.yml
+    - kubectl apply -n argocd -f argocd-install.yml
+    - printf "{{ blue_color }} Argocd Setup is started and will be up soon ..... {{ color_reset }}\n"
+  args:
+    executable: /bin/sh
+    chdir: /home/ubuntu/

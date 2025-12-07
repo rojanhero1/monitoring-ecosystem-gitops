@@ -1,0 +1,38 @@
+# Task to run commands in a loop, including apt update
+- name: Package installation => Snap
+  ansible.builtin.shell: "{{ item }}"
+  loop:
+    - printf "{{ blue_color }} Checking kubectl get pods {{ color_reset }}\n"
+    - sudo snap install kubectl --classic
+    - sudo snap install helm --classic
+    - printf "{{ blue_color }} runned sucessfully {{ color_reset }}\n"
+  args:
+    executable: /bin/sh
+    chdir: /home/ubuntu/
+
+################## Bash auto completion #####################
+- name: Package installation => debian and apt
+  ansible.builtin.shell: |
+    sudo apt install bash-completion
+    printf "{{ yellow_color }} enabling bash auto-completion {{ color_reset }}\n"
+    if ! grep -q "kubectl completion bash" ~/.bashrc; then
+        printf "Configuring kubectl completion"
+        echo 'source <(kubectl completion bash)' >> ~/.bashrc
+        source ~/.bashrc
+        print_success "kubectl completion configured"
+    fi  
+
+    if ! command -v aws >/dev/null 2>&1; then
+        printf "AWS CLI not found. Installing...\n"
+        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+        unzip -q awscliv2.zip
+        sudo ./aws/install
+        printf "AWS CLI installed successfully.\n"
+    else
+        printf "AWS CLI already installed. Skipping installation.\n"
+    fi  
+
+    printf "{{ blue_color }}task completed successfully{{ color_reset }}\n"
+  args:
+    executable: /bin/bash
+    chdir: /home/ubuntu/

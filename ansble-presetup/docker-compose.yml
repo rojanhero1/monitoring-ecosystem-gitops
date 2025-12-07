@@ -1,9 +1,12 @@
 services:
   ansible:
-    image: cytopia/ansible:2.13
+    image: cytopia/ansible:2.13-tools-manifest-linux-amd64
     container_name: ansible_runner
     working_dir: /ansible
-    command: tail -f /dev/null
+    stdin_open: true
+    tty: true
     volumes:
-      - ./:/ansible:ro
+      - ./:/ansible
       - ./.ssh-keys/:/root/.ssh
+
+      

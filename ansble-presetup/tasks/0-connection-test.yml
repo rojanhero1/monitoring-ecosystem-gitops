@@ -5,7 +5,6 @@
     - sudo apt-get update
     - printf "{{ blue_color }} runned sucessfully {{ color_reset }}\n"
   args:
-    executable: /bin/bash
   register: host_run_output
 
 - name: Task2 => Display loop task results

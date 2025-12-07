@@ -1,5 +1,2 @@
 [bastian_ubuntu]
 52.36.57.52 ansible_user=ubuntu
-
-[bastian_debian]
-52.36.57.52 ansible_user=admin
