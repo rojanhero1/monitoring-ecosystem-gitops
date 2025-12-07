@@ -1,15 +1,16 @@
 - hosts:
-    - local_servers
+    - bastian_debian
   #become: true
-  remote_user: ubuntu
+  remote_user: admin
   connection: ssh
   gather_facts: false
   vars_files:
     - ./variables/color-code.yml
+    - ./.ssh-keys/:/root/.ssh/
     - ./
   vars:
     timestamp: "{{ lookup('pipe', 'date +%Y-%m-%d_%H-%M') }}"
     base_path: "/home/subash/ansible"
     repo_branch: "develop"
   tasks:
-    - import_tasks: tasks/bastian-setup.yml
+    - import_tasks: tasks/0-connection-test.yml

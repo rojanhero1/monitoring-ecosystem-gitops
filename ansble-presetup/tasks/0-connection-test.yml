@@ -1,0 +1,16 @@
+- name: Basic Connection Test
+  ansible.builtin.shell: "{{ item }}"
+  loop:
+    - printf "{{ blue_color }} Checking kubectl get pods {{ color_reset }}\n"
+    - sudo apt-get update
+    - printf "{{ blue_color }} runned sucessfully {{ color_reset }}\n"
+  args:
+    executable: /bin/bash
+  register: host_run_output
+
+- name: Task2 => Display loop task results
+  ansible.builtin.debug:
+    msg: "{{ item.stdout | default('') }}"
+  loop: "{{ host_run_output.results }}"
+  loop_control:
+    label: "{{ item.item }}"  # Show the command in output for clarity

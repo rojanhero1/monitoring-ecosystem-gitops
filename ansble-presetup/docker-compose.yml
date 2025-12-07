@@ -1,0 +1,9 @@
+services:
+  ansible:
+    image: cytopia/ansible:2.13
+    container_name: ansible_runner
+    working_dir: /ansible
+    command: tail -f /dev/null
+    volumes:
+      - ./:/ansible:ro
+      - ./.ssh-keys/:/root/.ssh
