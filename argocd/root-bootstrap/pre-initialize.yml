@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: 1-k8s-root-argocd
+  name: 00-init-pre-setup
   namespace: argocd
   # finalizers:
   #   - resources-finalizer.argocd.argoproj.io
