@@ -1,14 +1,14 @@
 apiVersion: argoproj.io/v1alpha1
 kind: AppProject
 metadata:
-  name: infra
+  name: microservice
   namespace: argocd
   # finalizers:
   #   - resources-finalizer.argocd.argoproj.io  
 spec:
-  description: Infrastructure project for monitoring and infrastructure components
+  description: Infrastructure project for conatinerized infrastructure components
 
-  # Allow repositories for monitoring stack and infrastructure
+  # Allow repositories for application repositories
   sourceRepos:
     - https://github.com/rojanhero1/monitoring-ecosystem-gitops.git
     - https://prometheus-community.github.io/helm-charts
@@ -46,16 +46,16 @@ spec:
   # Optional: Role definitions for project-level RBAC
   roles:
     - name: admin
-      description: Admin privileges for infra project
+      description: Admin privileges for microservice project
       policies:
-        - p, proj:infra:admin, applications, *, infra/*, allow
+        - p, proj:microservice:admin, applications, *, microservice/*, allow
       groups:
-        - infra-admins
+        - microservice-admins
 
     - name: developer
-      description: Developer privileges for infra project
+      description: Developer privileges for microservice project
       policies:
-        - p, proj:infra:developer, applications, get, infra/*, allow
-        - p, proj:infra:developer, applications, sync, infra/*, allow
+        - p, proj:microservice:developer, applications, get, microservice/*, allow
+        - p, proj:microservice:developer, applications, sync, microservice/*, allow
       groups:
-        - infra-developers
+        - microservice-developers
