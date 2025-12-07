@@ -12,9 +12,9 @@ spec:
       targetRevision: 6.15.3
       helm:
         valueFiles:
-          - $values/gitops/staging/kube-prometheus-stack-values.yml
+          - $values/gitops/staging/promtail-values.yml
 
-    - repoURL: https://github.com/smartdreamers/smartdreamers-platform-gitops.git
+    - repoURL: https://github.com/rojanhero1/monitoring-ecosystem-gitops.git
       targetRevision: main
       ref: values
 
