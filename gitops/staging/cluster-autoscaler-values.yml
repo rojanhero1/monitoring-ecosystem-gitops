@@ -1,0 +1,17 @@
+autoDiscovery:
+  clusterName: staging-eks
+
+awsRegion: us-west-2
+
+rbac:
+  serviceAccount:
+    create: true
+    name: cluster-autoscaler
+    annotations:
+      eks.amazonaws.com/role-arn: arn:aws:iam::687398153695:role/Cloudhero-staging-eks-ClusterAutoscalerIRSA
+
+extraArgs:
+  skip-nodes-with-local-storage: false
+  skip-nodes-with-system-pods: false
+  balance-similar-node-groups: true
+  skip-nodes-with-custom-controller-pods: false
