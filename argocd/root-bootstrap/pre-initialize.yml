@@ -1,0 +1,46 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: 1-k8s-root-argocd
+  namespace: argocd
+  # finalizers:
+  #   - resources-finalizer.argocd.argoproj.io  # if mistakely config map deleted then argocd stops working
+spec:
+  destination:
+    namespace: argocd
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    path: argocd/dependencies-and-config
+    repoURL: https://github.com/rojanhero1/monitoring-ecosystem-gitops.git
+    targetRevision: HEAD
+  syncPolicy:
+    automated:
+      selfHeal: true
+      prune: false  # IMPORTANT: Don't prune ArgoCD's own config
+    syncOptions:
+      - CreateNamespace=true
+
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: 1-k8s-root-project
+  namespace: argocd
+  # finalizers:
+  #   - resources-finalizer.argocd.argoproj.io
+spec:
+  destination:
+    namespace: argocd
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    path: argocd/projects
+    repoURL: https://github.com/rojanhero1/monitoring-ecosystem-gitops.git
+    targetRevision: HEAD
+  syncPolicy:
+    automated:
+      selfHeal: true
+      prune: false  # Safety: don't auto-delete projects
+    syncOptions:
+      - CreateNamespace=true
