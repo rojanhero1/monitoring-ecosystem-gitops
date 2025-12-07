@@ -15,7 +15,7 @@ spec:
           - $values/gitops/staging/aws-elb-values.yml
 
     - repoURL: %oragnization-gitops-repo%
-      targetRevision: main
+      targetRevision: %branch-name%
       ref: values
 
   destination:

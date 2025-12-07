@@ -1,0 +1,43 @@
+- name: Kubernetes package and auto-completion setup
+  ansible.builtin.shell: |
+    PUBLIC_IP=$(curl ifconfig.me)
+    echo "PUBLIC_IP = ${PUBLIC_IP}"
+    printf "{{ yellow_color }} Installing {{ color_reset }}\n"
+    sudo snap install kubectl --classic
+    sudo snap install helm --classic
+    sudo apt install bash-completion
+    printf "{{ yellow_color }} enabling bash auto-completion {{ color_reset }}\n"
+    if ! grep -q "kubectl completion bash" ~/.bashrc; then
+        print_init "Configuring kubectl completion"
+        echo 'source <(kubectl completion bash)' >> ~/.bashrc
+        source ~/.bashrc
+        print_success "kubectl completion configured"
+    fi  
+    printf "{{ blue_color }}task completed successfully{{ color_reset }}\n"
+  args:
+    executable: /bin/bash
+    chdir: /home/ubuntu/
+  register: k8s_setup_result
+
+- name: Kubernetes-setup  => Outputs
+  ansible.builtin.debug:
+    var: k8s_setup_result.stdout_lines
+
+# Task to run commands in a loop, including apt update
+- name: Kubectl running
+  ansible.builtin.shell: "{{ item }}"
+  loop:
+    - printf "{{ blue_color }} Checking kubectl get pods {{ color_reset }}\n"
+    - kubectl get pods -A
+    - printf "{{ blue_color }} runned sucessfully {{ color_reset }}\n"
+  args:
+    executable: /bin/bash
+    chdir: /home/ubuntu/
+  register: kubectl_run_output
+
+- name: Task2 => Display loop task results
+  ansible.builtin.debug:
+    msg: "{{ item.stdout | default('') }}"
+  loop: "{{ kubectl_run_output.results }}"
+  loop_control:
+    label: "{{ item.item }}"  # Show the command in output for clarity

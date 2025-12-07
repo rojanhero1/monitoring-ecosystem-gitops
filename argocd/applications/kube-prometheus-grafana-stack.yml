@@ -15,7 +15,7 @@ spec:
       valueFiles:
         - $values/gitops/staging/kube-prometheus-stack-values.yml
   - repoURL: %oragnization-gitops-repo%
-    targetRevision: main # TODO: change it when we finish testing
+    targetRevision: %branch-name% # TODO: change it when we finish testing
     ref: values
   destination:
     server: https://kubernetes.default.svc

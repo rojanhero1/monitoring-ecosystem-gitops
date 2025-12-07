@@ -1,0 +1,15 @@
+- hosts:
+    - local_servers
+  #become: true
+  remote_user: ubuntu
+  connection: ssh
+  gather_facts: false
+  vars_files:
+    - ./variables/color-code.yml
+    - ./
+  vars:
+    timestamp: "{{ lookup('pipe', 'date +%Y-%m-%d_%H-%M') }}"
+    base_path: "/home/subash/ansible"
+    repo_branch: "develop"
+  tasks:
+    - import_tasks: tasks/bastian-setup.yml

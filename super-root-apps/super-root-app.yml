@@ -13,7 +13,7 @@ spec:
   source:
     path: argocd/root-bootstrap
     repoURL: %oragnization-gitops-repo%
-    targetRevision: HEAD
+    targetRevision: %branch-name%
   syncPolicy:
     automated:
       selfHeal: true

@@ -17,7 +17,7 @@ spec:
           - $values/gitops/staging/promtail-values.yml
 
     - repoURL: %oragnization-gitops-repo%
-      targetRevision: main
+      targetRevision: %branch-name%
       ref: values
 
   destination:

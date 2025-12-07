@@ -14,12 +14,12 @@ spec:
   sources:
   - repoURL: %oragnization-gitops-repo%
     path: argocd/dependencies-and-config
-    targetRevision: HEAD
+    targetRevision: %branch-name%
     directory:
       recurse: true      
   - repoURL: %oragnization-gitops-repo%
     path: argocd/projects
-    targetRevision: HEAD  
+    targetRevision: %branch-name%  
   syncPolicy:
     automated:
       selfHeal: true

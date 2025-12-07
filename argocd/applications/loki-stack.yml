@@ -15,7 +15,7 @@ spec:
         valueFiles:
           - $values/gitops/staging/loki-singlebinary-values.yml
     - repoURL: %oragnization-gitops-repo%
-      targetRevision: main
+      targetRevision: %branch-name%
       ref: values
 
   destination:
