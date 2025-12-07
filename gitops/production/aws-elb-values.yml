@@ -1,11 +1,11 @@
-clusterName: staging-eks
+clusterName: production-eks
 
 # Option 1: Using IRSA (Best Practice)
 serviceAccount:
   create: true
   name: aws-load-balancer-controller
   annotations:
-    eks.amazonaws.com/role-arn: %staging-eks-elb-irsa-arn%
+    eks.amazonaws.com/role-arn: %production-eks-elb-irsa-arn%
 
 # Optional: Resource limits
 resources:

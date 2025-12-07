@@ -21,7 +21,7 @@ alertmanager:
     create: true
     name: kube-prometheus-stack-alertmanager
     annotations:
-      eks.amazonaws.com/role-arn: arn:aws:iam::687398153695:role/Cloudhero-staging-eks-AlertmanagerIRSA
+      eks.amazonaws.com/role-arn: %production-prometheus-irsa-arn%
   service:
     type: ClusterIP  
   alertmanagerSpec:
@@ -57,7 +57,7 @@ alertmanager:
             send_resolved: true
             #sigv4:
             #  region: eu-west-1
-            topic_arn: arn:aws:sns:us-west-2:687398153695:Cloudhero-staging-eks-alerts
+            topic_arn: %production-sns-topic-arn%
             subject: "[{{ .Status | toUpper }}] {{ .CommonLabels.alertname }}"
             message: |
               {{ range .Alerts }}
@@ -212,7 +212,7 @@ prometheus:
   #   ingressClassName: alb
   #   annotations:
   #     # Use the same ALB group as Grafana
-  #     alb.ingress.kubernetes.io/group.name: monitoring-stack-staging
+  #     alb.ingress.kubernetes.io/group.name: monitoring-stack-production
   #     alb.ingress.kubernetes.io/scheme: internet-facing
   #     alb.ingress.kubernetes.io/target-type: ip
   #     #alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
@@ -228,7 +228,7 @@ prometheus:
   #     alb.ingress.kubernetes.io/healthy-threshold-count: '2'
   #     alb.ingress.kubernetes.io/unhealthy-threshold-count: '2'
   #   hosts:
-  #     - prometheus.staging.cloudhero.co  # Change to your actual domain
+  #     - prometheus.production.cloudhero.co  # Change to your actual domain
   #   paths:
   #     - /
   #   pathType: Prefix
@@ -275,7 +275,7 @@ grafana:
   #   create: true
   #   name: grafana
   #   annotations:
-  #     eks.amazonaws.com/role-arn: arn:aws:iam::687398153695:role/SmartDreamers-smartdreamersstaging-eks-GrafanaIRSA
+  #     eks.amazonaws.com/role-arn: arn:aws:iam::687398153695:role/SmartDreamers-smartdreamersproduction-eks-GrafanaIRSA
   # notifiers:
   #   notifiers.yaml:
   #     apiVersion: 1
@@ -286,7 +286,7 @@ grafana:
   #         org_id: 1
   #         is_default: true
   #         settings:
-  #           topic: arn:aws:sns:us-west-2:687398153695:Cloudhero-staging-eks-alerts
+  #           topic: arn:aws:sns:us-west-2:687398153695:Cloudhero-production-eks-alerts
   #           authType: default  # Uses IRSA
   #           assumeRoleArn: ""
   service:
@@ -298,12 +298,12 @@ grafana:
     ingressClassName: alb
     annotations:
       # Group multiple Ingress resources to use the same ALB
-      alb.ingress.kubernetes.io/group.name: monitoring-stack-staging
+      alb.ingress.kubernetes.io/group.name: monitoring-stack-production
       alb.ingress.kubernetes.io/scheme: internet-facing
       alb.ingress.kubernetes.io/target-type: ip
-      alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
-      #alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS": 443}]'
-      #alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:eu-west-1:687398153695:certificate/860c57b3-c09f-473c-ac29-2af69faa7cde
+      #alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+      alb.ingress.kubernetes.io/certificate-arn: %production-grafana-acm-arn%
       alb.ingress.kubernetes.io/ssl-redirect: '443'
       alb.ingress.kubernetes.io/healthcheck-path: /api/health
       alb.ingress.kubernetes.io/healthcheck-port: '3000'
@@ -314,7 +314,7 @@ grafana:
       alb.ingress.kubernetes.io/unhealthy-threshold-count: '2'
       alb.ingress.kubernetes.io/success-codes: '200'
     hosts:
-      - grafana.cloudhero.co  # Change to your actual domain
+      - %production-grafana-domain-name%  # Change to your actual domain
     paths:
       - /
     pathType: Prefix
@@ -353,7 +353,7 @@ grafana:
 
   grafana.ini:
     server:
-      root_url: https://grafana.cloudhero.co/   
+      root_url: %production-grafana-domain-name%   
       serve_from_sub_path: true   
     auth.anonymous:
       enabled: false
