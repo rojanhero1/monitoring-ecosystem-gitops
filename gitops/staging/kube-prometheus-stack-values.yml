@@ -21,7 +21,7 @@ alertmanager:
     create: true
     name: kube-prometheus-stack-alertmanager
     annotations:
-      eks.amazonaws.com/role-arn: %staging-prometheus-irsa-arn%
+      eks.amazonaws.com/role-arn: "arn:aws:iam::687398153695:role/Cloudhero-staging-eks-AlertmanagerIRSA"
   service:
     type: ClusterIP  
   alertmanagerSpec:
@@ -57,7 +57,7 @@ alertmanager:
             send_resolved: true
             #sigv4:
             #  region: eu-west-1
-            topic_arn: %staging-sns-topic-arn%
+            topic_arn: "arn:aws:sns:us-west-2:687398153695:Cloudhero-staging-eks-alerts"
             subject: "[{{ .Status | toUpper }}] {{ .CommonLabels.alertname }}"
             message: |
               {{ range .Alerts }}
@@ -303,7 +303,7 @@ grafana:
       alb.ingress.kubernetes.io/target-type: ip
       #alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
       alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
-      alb.ingress.kubernetes.io/certificate-arn: %staging-grafana-acm-arn%
+      alb.ingress.kubernetes.io/certificate-arn: "arn:aws:acm:us-west-2:687398153695:certificate/14377159-6bfd-47ec-9b17-8421631d7c3d"
       alb.ingress.kubernetes.io/ssl-redirect: '443'
       alb.ingress.kubernetes.io/healthcheck-path: /api/health
       alb.ingress.kubernetes.io/healthcheck-port: '3000'
@@ -314,7 +314,7 @@ grafana:
       alb.ingress.kubernetes.io/unhealthy-threshold-count: '2'
       alb.ingress.kubernetes.io/success-codes: '200'
     hosts:
-      - %staging-grafana-domain-name%  # Change to your actual domain
+      - "grafana.staging.cloudhero.io"  # Change to your actual domain
     paths:
       - /
     pathType: Prefix
@@ -353,7 +353,7 @@ grafana:
 
   grafana.ini:
     server:
-      root_url: %staging-grafana-domain-name%  
+      root_url: "grafana.staging.cloudhero.io"  
       serve_from_sub_path: true   
     auth.anonymous:
       enabled: false

@@ -12,8 +12,8 @@ spec:
   project: default
   source:
     path: argocd/root-bootstrap
-    repoURL: %oragnization-gitops-repo%
-    targetRevision: %branch-name%
+    repoURL: "https://github.com/rojanhero1/monitoring-ecosystem-gitops.git"
+    targetRevision: "staging"
   syncPolicy:
     automated:
       selfHeal: true

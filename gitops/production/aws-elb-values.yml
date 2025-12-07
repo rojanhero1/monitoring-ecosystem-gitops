@@ -5,7 +5,7 @@ serviceAccount:
   create: true
   name: aws-load-balancer-controller
   annotations:
-    eks.amazonaws.com/role-arn: %production-eks-elb-irsa-arn%
+    eks.amazonaws.com/role-arn: "arn:aws:iam::687398153695:role/Cloudhero-production-eks-ALBController"
 
 # Optional: Resource limits
 resources:
