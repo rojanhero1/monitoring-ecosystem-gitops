@@ -14,7 +14,7 @@ spec:
     helm:
       valueFiles:
         - $values/gitops/staging/kube-prometheus-stack-values.yml
-  - repoURL: %oragnization-gitops-repo%
+  - repoURL: "https://github.com/rojanhero1/monitoring-ecosystem-gitops.git"
     targetRevision: main # TODO: change it when we finish testing
     ref: values
   destination:

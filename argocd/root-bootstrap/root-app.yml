@@ -12,7 +12,7 @@ spec:
   project: default
   source:
     path: argocd/applications
-    repoURL: %oragnization-gitops-repo%
+    repoURL: "https://github.com/rojanhero1/monitoring-ecosystem-gitops.git"
     targetRevision: HEAD
   syncPolicy:
     automated:
