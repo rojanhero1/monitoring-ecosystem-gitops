@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: 0-k8s-super-root-app
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  destination:
+    namespace: argocd
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    path: argocd/root-bootstrap
+    repoURL: %oragnization-gitops-repo%
+    targetRevision: %branch-name%
+  syncPolicy:
+    automated:
+      selfHeal: true
+      prune: true
