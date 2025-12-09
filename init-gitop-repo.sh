@@ -86,25 +86,28 @@ main() {
     fi
 
     # Apply sed templates
+    print_info "Updating Branch name in  templates.sed"
+    sed -i "/%branch-name%/s|\"[^\"]*\"|\"${BRANCH_NAME}\"|" templates.sed
+
     print_info "Applying templates.sed to *.yaml and *.yml files..."
     find . -type f \( -name "*.yaml" -o -name "*.yml" \) -exec sed -i.bak -f templates.sed {} +
     find . -type f -name "*.bak" -delete    
     print_success "Template substitution completed."
 
     # Check if branch already exists before creating
-    if git rev-parse --verify "$BRANCH_NAME" >/dev/null 2>&1; then
-        print_fail "Error: Branch '$BRANCH_NAME' already exists!"
-        print_info "Please delete that branch with: git branch -D $BRANCH_NAME"
+    if git rev-parse --verify "${BRANCH_NAME}" >/dev/null 2>&1; then
+        print_fail "Error: Branch '${BRANCH_NAME}' already exists!"
+        print_info "Please delete that branch with: git branch -D ${BRANCH_NAME}"
         print_info "Or choose another branch name with: $0 -b <new-branch-name>"
         exit 1
     fi
 
     # Create and push Git branch
     print_info "Creating new branch: ${BRANCH_NAME}"
-    git checkout -b "$BRANCH_NAME"
+    git checkout -b "${BRANCH_NAME}"
     git add .
     git commit -m "Initializing gitops"
-    git push --set-upstream origin "$BRANCH_NAME"
+    git push --set-upstream origin "${BRANCH_NAME}"
     print_success "Branch pushed successfully."
     
     print_separator

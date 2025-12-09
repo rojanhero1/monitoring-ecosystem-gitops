@@ -5,6 +5,8 @@ s|%staging-loki-irsa-arn%|"arn:aws:iam::687398153695:role/Cloudhero-staging-eks-
 s|%staging-prometheus-irsa-arn%|"arn:aws:iam::687398153695:role/Cloudhero-staging-eks-AlertmanagerIRSA"|g
 s|%staging-sns-topic-arn%|"arn:aws:sns:us-west-2:687398153695:Cloudhero-staging-eks-alerts"|g
 s|%staging-grafana-acm-arn%|"arn:aws:acm:us-west-2:687398153695:certificate/14377159-6bfd-47ec-9b17-8421631d7c3d"|g
+s|%staging-argocd-elb-name%|"argocd-server-gui"|g
+s|%staging-argocd-acm-arn%|"arn:aws:acm:us-west-2:687398153695:certificate/14377159-6bfd-47ec-9b17-8421631d7c3d"|g
 s|%staging-grafana-domain-name%|"grafana.staging.cloudhero.io"|g
 s|%staging-loki-bucket-chunk%|"cloudhero-staging-eks-loki-chunks"|g
 s|%staging-loki-bucket-ruler%|"cloudhero-staging-eks-loki-ruler"|g
@@ -15,16 +17,10 @@ s|%production-loki-irsa-arn%|"arn:aws:iam::687398153695:role/Cloudhero-productio
 s|%production-prometheus-irsa-arn%|"arn:aws:iam::687398153695:role/Cloudhero-production-eks-AlertmanagerIRSA"|g
 s|%production-sns-topic-arn%|"arn:aws:sns:us-west-2:687398153695:Cloudhero-production-eks-alerts"|g
 s|%production-grafana-acm-arn%|"arn:aws:acm:us-west-2:687398153695:certificate/14377159-6bfd-47ec-9b17-8421631d7c3d"|g
+s|%production-argocd-elb-name%|"argocd-server-gui"|g
+s|%production-argocd-acm-arn%|"arn:aws:acm:us-west-2:687398153695:certificate/14377159-6bfd-47ec-9b17-8421631d7c3d"|g
 s|%production-grafana-domain-name%|"grafana.production.cloudhero.io"|g
 s|%production-loki-bucket-chunk%|"cloudhero-production-eks-loki-chunks"|g
 s|%production-loki-bucket-ruler%|"cloudhero-production-eks-loki-ruler"|g
 s|%production-loki-bucket-admin%|"cloudhero-production-eks-loki-admin"|g
 s|%production-loki-bucket-region%|"us-west-2"|g
-
-
-
-
-
-
-
-
