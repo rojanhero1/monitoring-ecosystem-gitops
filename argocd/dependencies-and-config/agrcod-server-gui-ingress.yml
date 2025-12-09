@@ -5,7 +5,7 @@ metadata:
   namespace: argocd
   annotations:
     # Group multiple Ingress resources to use the same ALB
-    alb.ingress.kubernetes.io/load-balancer-name: %staging-argocd-elb-name%
+    alb.ingress.kubernetes.io/load-balancer-name: "argocd-server-gui"
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
     #alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
@@ -18,7 +18,7 @@ metadata:
     alb.ingress.kubernetes.io/healthcheck-protocol: HTTPS
     alb.ingress.kubernetes.io/success-codes: 200,302,307
     # SSL certificate ARN (optional - add your ACM certificate ARN)
-    alb.ingress.kubernetes.io/certificate-arn: %staging-argocd-acm-arn%
+    alb.ingress.kubernetes.io/certificate-arn: "arn:aws:acm:us-west-2:687398153695:certificate/14377159-6bfd-47ec-9b17-8421631d7c3d"
     #
 spec:
   ingressClassName: alb

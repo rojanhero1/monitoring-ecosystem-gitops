@@ -12,14 +12,14 @@ spec:
   project: default  
   # Use "sources" (plural) instead of "source"
   sources:
-  - repoURL: %oragnization-gitops-repo%
+  - repoURL: "https://github.com/rojanhero1/monitoring-ecosystem-gitops.git"
     path: argocd/dependencies-and-config
-    targetRevision: %branch-name%
+    targetRevision: "rozan-staging"
     directory:
       recurse: true      
-  - repoURL: %oragnization-gitops-repo%
+  - repoURL: "https://github.com/rojanhero1/monitoring-ecosystem-gitops.git"
     path: argocd/projects
-    targetRevision: %branch-name%  
+    targetRevision: "rozan-staging"  
   syncPolicy:
     automated:
       selfHeal: true

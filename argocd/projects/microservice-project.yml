@@ -10,7 +10,7 @@ spec:
 
   # Allow repositories for application repositories
   sourceRepos:
-    - %oragnization-gitops-repo%
+    - "https://github.com/rojanhero1/monitoring-ecosystem-gitops.git"
     - https://prometheus-community.github.io/helm-charts
     - https://grafana.github.io/helm-charts
     - https://kubernetes-sigs.github.io/aws-ebs-csi-driver

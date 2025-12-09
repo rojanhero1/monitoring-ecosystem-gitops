@@ -1,5 +1,5 @@
 s|%oragnization-gitops-repo%|"https://github.com/rojanhero1/monitoring-ecosystem-gitops.git"|g
-s|%branch-name%|"staging"|g
+s|%branch-name%|"rozan-staging"|g
 s|%staging-eks-elb-irsa-arn%|"arn:aws:iam::687398153695:role/Cloudhero-staging-eks-ALBController"|g
 s|%staging-loki-irsa-arn%|"arn:aws:iam::687398153695:role/Cloudhero-staging-eks-LokiIRSA"|g
 s|%staging-prometheus-irsa-arn%|"arn:aws:iam::687398153695:role/Cloudhero-staging-eks-AlertmanagerIRSA"|g

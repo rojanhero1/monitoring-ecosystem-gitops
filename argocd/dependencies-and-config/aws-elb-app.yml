@@ -14,8 +14,8 @@ spec:
         valueFiles:
           - $values/gitops/staging/aws-elb-values.yml
 
-    - repoURL: %oragnization-gitops-repo%
-      targetRevision: %branch-name%
+    - repoURL: "https://github.com/rojanhero1/monitoring-ecosystem-gitops.git"
+      targetRevision: "rozan-staging"
       ref: values
 
   destination:

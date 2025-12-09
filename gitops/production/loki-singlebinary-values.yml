@@ -20,11 +20,11 @@ loki:
   storage:
     type: s3
     bucketNames:
-      chunks: %production-loki-bucket-chunk%
-      ruler: %production-loki-bucket-ruler%
-      admin: %production-loki-bucket-admin%
+      chunks: "cloudhero-production-eks-loki-chunks"
+      ruler: "cloudhero-production-eks-loki-ruler"
+      admin: "cloudhero-production-eks-loki-admin"
     s3:
-      region: %production-loki-bucket-region%
+      region: "us-west-2"
 
 # Disable minio storage
 minio:
@@ -34,7 +34,7 @@ deploymentMode: SingleBinary
 
 serviceAccount:
   annotations:
-    eks.amazonaws.com/role-arn: %production-loki-irsa-arn%
+    eks.amazonaws.com/role-arn: "arn:aws:iam::687398153695:role/Cloudhero-production-eks-LokiIRSA"
 singleBinary:
   replicas: 1
   persistence:
